@@ -67,6 +67,12 @@ module.exports = function (grunt) {
 			AWS.config.credentials = credentials;
 		}
 
+		if (options.RoleArn) {
+			AWS.config.credentials = new AWS.TemporaryCredentials({
+				RoleArn: options.RoleArn
+			});
+		}
+
 		if (['dots','progressBar','none'].indexOf(options.progress) < 0) {
 			grunt.log.writeln('Invalid progress option; defaulting to dots\n'.yellow);
 			options.progress = 'dots';

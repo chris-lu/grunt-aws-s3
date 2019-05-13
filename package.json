@@ -28,7 +28,7 @@
     "test": "grunt"
   },
   "dependencies": {
-    "aws-sdk": "2.0.x",
+    "aws-sdk": "~2.449.0",
     "mime-types": "2.0.x",
     "lodash": "2.4.x",
     "async": "0.9.x",
