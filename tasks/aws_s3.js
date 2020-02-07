@@ -51,9 +51,9 @@ module.exports = function (grunt) {
 		}
 
 		var filePairOptions = {
-			differential: options.differential, 
-			stream: options.stream, 
-			flipExclude: false, 
+			differential: options.differential,
+			stream: options.stream,
+			flipExclude: false,
 			exclude: false
 		};
 
@@ -87,8 +87,8 @@ module.exports = function (grunt) {
 		// Checks that all params are in put_params
 		var isValidParams = function (params) {
 
-			return _.every(_.keys(params), function (key) { 
-				return _.contains(put_params, key); 
+			return _.every(_.keys(params), function (key) {
+				return put_params.includes(key);
 			});
 		};
 
@@ -100,11 +100,11 @@ module.exports = function (grunt) {
 			if (!options.mock) {
 				prefix = s3.endpoint.href
 			}
-			
+
 			return prefix + options.bucket + '/' + file;
 		};
 
-		// Get the key URL relative to a path string 
+		// Get the key URL relative to a path string
 		var getRelativeKeyPath = function (key, dest) {
 
 			var path;
@@ -171,7 +171,7 @@ module.exports = function (grunt) {
 		};
 
 		var isFileDifferent = function (options, callback) {
-			
+
 			hashFile(options, function (err, md5_hash) {
 
 				if (err) {
@@ -207,7 +207,7 @@ module.exports = function (grunt) {
 
 		if (!options.region) {
 			grunt.log.writeln("No region defined. S3 will default to US Standard\n".yellow);
-		} 
+		}
 		else {
 			s3_options.region = options.region;
 		}
@@ -232,7 +232,7 @@ module.exports = function (grunt) {
 		var objects = [];
 		var uploads = [];
 
-		// Because Grunt expands the files array automatically, 
+		// Because Grunt expands the files array automatically,
 		// we need to group the uploads together to make the difference between actions.
 		var pushUploads = function() {
 
@@ -251,7 +251,7 @@ module.exports = function (grunt) {
 		if (missingExpand) {
 			grunt.warn("File upload action has 'cwd' but is missing 'expand: true', src list will not expand!");
 		}
-		
+
 		this.files.forEach(function (filePair) {
 
 			is_expanded = filePair.orig.expand || false;
@@ -270,7 +270,7 @@ module.exports = function (grunt) {
 				pushUploads();
 
 				filePair.dest = (filePair.dest === '/') ? '' : filePair.dest;
-				
+
 				objects.push(filePair);
 			}
 			else if (filePair.action === 'download') {
@@ -328,7 +328,7 @@ module.exports = function (grunt) {
 
 							if (_.last(filePair.dest) === '/') {
 								dest = (is_expanded) ? filePair.dest : unixifyPath(path.join(filePair.dest, src));
-							} 
+							}
 							else {
 								dest = filePair.dest;
 							}
@@ -342,7 +342,7 @@ module.exports = function (grunt) {
 
 								uploads.push(_.defaults({
 									need_upload: true,
-									src: src, 
+									src: src,
 									dest: dest
 								}, filePair));
 							}
@@ -356,11 +356,11 @@ module.exports = function (grunt) {
 
 		// Will list *all* the content of the bucket given in options
 		// Recursively requests the bucket with a marker if there's more than
-		// 1000 objects. Ensures uniqueness of keys in the returned list. 
+		// 1000 objects. Ensures uniqueness of keys in the returned list.
 		var listObjects = function (prefix, callback, marker, contents) {
 
 			var search = {
-				Prefix: prefix, 
+				Prefix: prefix,
 				Bucket: options.bucket
 			};
 
@@ -368,7 +368,7 @@ module.exports = function (grunt) {
 				search.Marker = marker;
 			}
 
-			s3.listObjects(search, function (err, list) { 
+			s3.listObjects(search, function (err, list) {
 
 				if (!err) {
 
@@ -632,13 +632,13 @@ module.exports = function (grunt) {
 
 							// If file exists locally we need to check if it's different
 							if (local_index !== -1) {
-								
+
 								// Check md5 and if file is older than server file
-								var check_options = { 
-									file_path: object.dest, 
-									server_hash: object.ETag, 
-									server_date: object.LastModified, 
-									date_compare: 'older' 
+								var check_options = {
+									file_path: object.dest,
+									server_hash: object.ETag,
+									server_date: object.LastModified,
+									date_compare: 'older'
 								};
 
 								isFileDifferent(check_options, function (err, different) {
@@ -767,7 +767,7 @@ module.exports = function (grunt) {
 
 					doCompressionRename(object, options);
 
-					var server_file = _.where(server_files, { Key: object.dest })[0];
+					var server_file = _.filter(server_files, { Key: object.dest })[0];
 
 					if (server_file && !options.overwrite) {
 						uploadCallback(object.dest + " already exists!")
@@ -818,7 +818,7 @@ module.exports = function (grunt) {
 
 			var unique_dests = _(task.files)
 				.filter('differential')
-				.pluck('dest')
+				.map('dest')
 				.compact()
 				.map(path.dirname)
 				.sort()
@@ -847,7 +847,7 @@ module.exports = function (grunt) {
 				}, function (err, objects) {
 					if (err) {
 						callback(err);
-					} 
+					}
 					else {
 						var server_files = Array.prototype.concat.apply([], objects);
 						startUploads(server_files);
@@ -899,7 +899,7 @@ module.exports = function (grunt) {
 			var uploadedFiles = []
 
 			_.each(objects, function (o) {
-				if (!o.action || o.action === 'upload') {	
+				if (!o.action || o.action === 'upload') {
 					_.each(o.files, function (file) {
 						if (file.need_upload) {
 							uploadedFiles.push(file.dest)
@@ -961,7 +961,7 @@ module.exports = function (grunt) {
 						grunt.fatal('Download failed\n' + err.toString());
 					}
 					else {
-						if (res && res.length > 0) {												
+						if (res && res.length > 0) {
 							grunt.log.writeln('\nList: (' + res.length.toString().cyan + ' objects):');
 
 							var task = this.data;
@@ -994,7 +994,7 @@ module.exports = function (grunt) {
 						grunt.fatal('Copy failed\n' + err.toString());
 					}
 					else {
-						if (res && res.length > 0) {												
+						if (res && res.length > 0) {
 							grunt.log.writeln('\nList: (' + res.length.toString().cyan + ' objects):');
 
 							var task = this.data;
@@ -1056,8 +1056,8 @@ module.exports = function (grunt) {
 
 		if (process.platform === 'win32') {
 			return filepath.replace(/\\/g, '/');
-		} 
-		else {	
+		}
+		else {
 			return filepath;
 		}
 	};

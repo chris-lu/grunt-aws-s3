@@ -1,5 +1,11 @@
 # CHANGELOG
 
+### v2.0.2
+- Fix lodash contains and update tests (by @eugenioclrc)
+
+### v2.0.1
+- Update lodash to latest version (by @ffflorian)
+
 ### v2.0.0
 - Support different compression algorithms, remove support for `gzipRename`, use `compressionRename` now (by @smeder)
 
